@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private void init() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
         orientationField = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         //注册监听
