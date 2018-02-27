@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
     defaultConfig {
-        applicationId "com.sunny.www.compass"
+        applicationId "com.sunny.www.ic_launcher"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1

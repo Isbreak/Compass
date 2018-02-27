@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.sunny.www.compass", appContext.getPackageName());
+        assertEquals("com.sunny.www.ic_launcher", appContext.getPackageName());
     }
 }
