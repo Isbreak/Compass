@@ -9,6 +9,17 @@
     <com.sunny.www.compass.CompassView
         android:id="@+id/compass"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="400dp"
         android:layout_centerInParent="true" />
+
+    <TextView
+        android:id="@+id/tv_dir"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="65dp"
+        tools:text="@string/app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>

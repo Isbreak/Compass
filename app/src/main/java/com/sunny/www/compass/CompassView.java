@@ -19,8 +19,8 @@ public class CompassView extends View {
 
     private Paint mPaint;
     private int viewSize;
-    private int directionAngle = 270;
-    private int oldDirectionAngle = 0;
+    private float directionAngle = 0;
+    private float oldDirectionAngle = 0;
     private int radius;
     private Rect mTextRect;
 
@@ -32,7 +32,7 @@ public class CompassView extends View {
         mTextRect = new Rect();
     }
 
-    public void setDirectionAngle(int directionAngle) {
+    public void setDirectionAngle(float directionAngle) {
         this.directionAngle = directionAngle;
         if (oldDirectionAngle != directionAngle) {
             postInvalidateDelayed(1 / 60);
@@ -56,16 +56,6 @@ public class CompassView extends View {
         canvas.drawColor(Color.BLACK);
         canvas.translate(canvas.getWidth() / 2, canvas.getHeight() / 2);
 
-        // 画中间角度值
-        String textAngel = String.valueOf(directionAngle);
-        Paint angelPaint = new Paint(mPaint);
-        angelPaint.setColor(Color.argb(255, 252, 252, 252));
-        angelPaint.setTextSize(140f);
-        angelPaint.getTextBounds(textAngel, 0, textAngel.length(), mTextRect);
-        int width = mTextRect.width();
-        int height = mTextRect.height();
-        canvas.drawText(textAngel + "°", -width / 2, height / 2, angelPaint);
-
         // 画灰色三角形
         Paint grayTrigonPaint = new Paint(mPaint);
         grayTrigonPaint.setColor(Color.argb(255, 50, 50, 50));
@@ -77,56 +67,64 @@ public class CompassView extends View {
         canvas.drawPath(grayTriangle, grayTrigonPaint);
 
         // 绘制最外部两个圆弧
-        Paint arcPaint = new Paint(mPaint);
-        arcPaint.setStyle(Paint.Style.STROKE);
-        arcPaint.setColor(Color.argb(255, 50, 50, 50));
-        arcPaint.setStrokeWidth(4f);
+        Paint outsideArcPaint = new Paint(mPaint);
+        outsideArcPaint.setStyle(Paint.Style.STROKE);
+        outsideArcPaint.setColor(Color.argb(255, 50, 50, 50));
+        outsideArcPaint.setStrokeWidth(4f);
+        RectF outsideOval = new RectF(-radius - 90, -radius - 90, radius + 90, radius + 90);
+        canvas.drawArc(outsideOval, -82, 140, false, outsideArcPaint);
+        canvas.drawArc(outsideOval, 122, 140, false, outsideArcPaint);
 
-        RectF oval = new RectF(-radius - 90, -radius - 90, radius + 90, radius + 90);
-        canvas.drawArc(oval, -82, 140, false, arcPaint);
-        canvas.drawArc(oval, 122, 140, false, arcPaint);
-
+        // 画中间角度值
+        String angel = String.valueOf((int)directionAngle);
+        Paint midAngelPaint = new Paint(mPaint);
+        midAngelPaint.setColor(Color.argb(255, 252, 252, 252));
+        midAngelPaint.setTextSize(140f);
+        midAngelPaint.getTextBounds(angel, 0, angel.length(), mTextRect);
+        int width = mTextRect.width();
+        int height = mTextRect.height();
+        canvas.drawText(angel + "°", -width / 2, height / 2, midAngelPaint);
 
         // 画圆圈
         // 红色画笔
-        Paint circlePaint1 = new Paint(mPaint);
-        circlePaint1.setColor(Color.argb(255, 253, 57, 0));
-        circlePaint1.setStyle(Paint.Style.STROKE);
-        circlePaint1.setStrokeWidth(6f);
+        Paint redCirclePaint = new Paint(mPaint);
+        redCirclePaint.setColor(Color.argb(255, 253, 57, 0));
+        redCirclePaint.setStyle(Paint.Style.STROKE);
+        redCirclePaint.setStrokeWidth(6f);
 
         // 灰色画笔
-        Paint circlePaint2 = new Paint(mPaint);
-        circlePaint2.setColor(Color.argb(255, 155, 155, 155));
-        circlePaint2.setStyle(Paint.Style.STROKE);
-        circlePaint2.setStrokeWidth(6f);
-        RectF oval2 = new RectF(-radius, -radius, radius, radius);
+        Paint grayCirclePaint = new Paint(mPaint);
+        grayCirclePaint.setColor(Color.argb(255, 155, 155, 155));
+        grayCirclePaint.setStyle(Paint.Style.STROKE);
+        grayCirclePaint.setStrokeWidth(6f);
 
+        RectF insideOval = new RectF(-radius, -radius, radius, radius);
         if (directionAngle < 180) {
-            canvas.drawArc(oval2, -90 - directionAngle + 6, directionAngle - 1 - 6, false, circlePaint1);
-            canvas.drawArc(oval2, -90 + 1, 360 - directionAngle - 7, false, circlePaint2);
+            canvas.drawArc(insideOval, -90 - directionAngle + 6, directionAngle - 1 - 6, false, redCirclePaint);
+            canvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, grayCirclePaint);
         } else {
-            canvas.drawArc(oval2, -90 + 1, 360 - directionAngle - 7, false, circlePaint1);
-            canvas.drawArc(oval2, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, circlePaint2);
+            canvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, redCirclePaint);
+            canvas.drawArc(insideOval, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, grayCirclePaint);
         }
 
         canvas.rotate(-directionAngle, 0f, 0f);
 
         // 画红色三角形
-        Paint trigonPaint = new Paint(mPaint);
-        trigonPaint.setColor(Color.argb(255, 253, 57, 0));
+        Paint redTrigonPaint = new Paint(mPaint);
+        redTrigonPaint.setColor(Color.argb(255, 253, 57, 0));
         Path redTriangle = new Path();
         redTriangle.moveTo(-28f, -radius + 6);
         redTriangle.lineTo(28f, -radius + 6);
         redTriangle.lineTo(0, (float) (-radius - Math.sqrt(56 * 56 - 28 * 28) + 6));
         redTriangle.close();
-        canvas.drawPath(redTriangle, trigonPaint);
+        canvas.drawPath(redTriangle, redTrigonPaint);
 
-        // 画刻度
+        // 普通刻度
         Paint normalScalePaint = new Paint(mPaint);
         normalScalePaint.setStyle(Paint.Style.FILL);
         normalScalePaint.setStrokeWidth(3f);
         normalScalePaint.setColor(Color.argb(255, 107, 107, 107));
-
+        // 特殊刻度
         Paint specialScalePaint = new Paint(mPaint);
         specialScalePaint.setStyle(Paint.Style.FILL);
         specialScalePaint.setStrokeWidth(4f);
@@ -139,47 +137,39 @@ public class CompassView extends View {
             if (i % 90 == 0) {
                 canvas.drawLine(0, -radius + 15, 0, -radius + 45, specialScalePaint);
                 dirTextPaint.setColor(Color.argb(255, 252, 252, 252));
+                String text = "N";
+                dirTextPaint.getTextBounds(text, 0, text.length(), mTextRect);
+                int textWidth = mTextRect.width();
+                int textHeight = mTextRect.height();
 
                 if (i == 0) {
                     String direction = "N";
                     dirTextPaint.setColor(Color.argb(255, 253, 57, 0));
-                    dirTextPaint.getTextBounds(direction, 0, direction.length(), mTextRect);
-                    int textWidth = mTextRect.width();
-                    int textHeight = mTextRect.height();
                     canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
-                } else if (i == 90) {
-                    String direction = "E";
+                } else {
                     dirTextPaint.setColor(Color.WHITE);
-                    dirTextPaint.getTextBounds(direction, 0, direction.length(), mTextRect);
-                    int textWidth = mTextRect.width();
-                    int textHeight = mTextRect.height();
-                    canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
-                } else if (i == 180) {
-                    String direction = "S";
-                    dirTextPaint.setColor(Color.WHITE);
-                    dirTextPaint.getTextBounds(direction, 0, direction.length(), mTextRect);
-                    int textWidth = mTextRect.width();
-                    int textHeight = mTextRect.height();
-                    canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
-                } else if (i == 270) {
-                    String direction = "W";
-                    dirTextPaint.setColor(Color.WHITE);
-                    dirTextPaint.getTextBounds(direction, 0, direction.length(), mTextRect);
-                    int textWidth = mTextRect.width();
-                    int textHeight = mTextRect.height();
-                    canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
+                    if ((i == 90)) {
+                        String direction = "E";
+                        canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
+                    } else if (i == 180) {
+                        String direction = "S";
+                        canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
+                    } else if (i == 270) {
+                        String direction = "W";
+                        canvas.drawText(direction, -textWidth / 2, textHeight / 2 - radius + 75, dirTextPaint);
+                    }
                 }
             } else if (i % 2 == 0) {
                 canvas.drawLine(0, -radius + 15, 0, -radius + 45, normalScalePaint);
                 if (i % 30 == 0) {
-                    Paint normalDirTextPaint = new Paint(mPaint);
-                    String text = String.valueOf(i);
-                    normalDirTextPaint.setColor(Color.argb(255, 107, 107, 107));
-                    normalDirTextPaint.setTextSize(22f);
-                    normalDirTextPaint.getTextBounds(text, 0, text.length(), mTextRect);
+                    Paint roundAngelTextPaint = new Paint(mPaint);
+                    String angelValue = String.valueOf(i);
+                    roundAngelTextPaint.setColor(Color.argb(255, 107, 107, 107));
+                    roundAngelTextPaint.setTextSize(22f);
+                    roundAngelTextPaint.getTextBounds(angelValue, 0, angelValue.length(), mTextRect);
                     int textWidth = mTextRect.width();
                     int textHeight = mTextRect.height();
-                    canvas.drawText(text, -textWidth / 2, textHeight / 2 - radius + 70, normalDirTextPaint);
+                    canvas.drawText(angelValue, -textWidth / 2, textHeight / 2 - radius + 70, roundAngelTextPaint);
                 }
             }
             canvas.rotate(1, 0f, 0f);

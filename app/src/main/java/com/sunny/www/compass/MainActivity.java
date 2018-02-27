@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.TextView;
 
 /**
  * 指南针主界面
@@ -26,9 +27,10 @@ public class MainActivity extends AppCompatActivity {
     private Sensor orientationField;
 
     String direction = "未知"; // 方向描述
-    private String mOrientaionText[] = new String[]{"正北", "东北", "正东", "东南", "正南", "西南", "正西", "西北"};
+    private String mDirectionText[] = new String[]{"北", "东北", "东", "东南", "南", "西南", "西", "西北"};
 
     private CompassView mCompassView;
+    private TextView mDirection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mCompassView = (CompassView) findViewById(R.id.compass);
+        mDirection = (TextView) findViewById(R.id.tv_dir);
     }
 
     @Override
@@ -51,13 +54,15 @@ public class MainActivity extends AppCompatActivity {
         orientationField = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         //注册监听
-        mSensorManager.registerListener(sensorEventListener, orientationField, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(sensorEventListener, orientationField, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            mCompassView.setDirectionAngle((int) event.values[0]);
+            mCompassView.setDirectionAngle(event.values[0]);
+            direction = mDirectionText[((int) (event.values[0] + 22.5f) % 360) / 45];
+            mDirection.setText(direction);
         }
 
         @Override
