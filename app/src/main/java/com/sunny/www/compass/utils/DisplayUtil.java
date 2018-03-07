@@ -4,6 +4,12 @@ import android.content.Context;
 
 /**
  * dp、sp 与 px 互相转化的工具类
+ * 实测在同样1080*1920屏幕大小相同的一加，小米手机上，
+ * context.getResources().getDisplayMetrics().density 获得的值不同
+ * 小米为 2.75
+ * 一加为 2.625
+ *
+ * nexus 1440*2560分辨率，density值为 3.5
  */
 public class DisplayUtil {
 
@@ -14,8 +20,10 @@ public class DisplayUtil {
      * @return 转换完成的dp值
      */
     public static int px2dp(Context context, float pxValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-
+        float scale = context.getResources().getDisplayMetrics().density;
+        if (scale == 2.625) { // TODO: 2018/3/7 适配一加机型
+            scale = (float) 2.9;
+        }
         return (int) (pxValue / scale + 0.5f);
     }
 
@@ -26,13 +34,11 @@ public class DisplayUtil {
      * @return 转换完成的px值
      */
     public static int dp2px(Context context, float dpValue) {
-        final float scale = context.getResources().getDisplayMetrics().density;
+        float scale = context.getResources().getDisplayMetrics().density;
+        if (scale == 2.625) { // TODO: 2018/3/7 适配一加机型
+            scale = (float) 2.9;
+        }
         return (int) (dpValue * scale + 0.5f);
-    }
-
-    public static int p2d(Context context, float px) {
-        final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (px / scale + 0.5);
     }
 
     /**

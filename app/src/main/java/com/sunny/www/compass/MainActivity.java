@@ -10,6 +10,7 @@ import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sunny.www.compass.view.CompassView;
 
@@ -36,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
         mCompassView = (CompassView) findViewById(R.id.compass);
         mDirection = (TextView) findViewById(R.id.tv_dir);
+
+//        Toast.makeText(this, getResources().getDisplayMetrics().density + "", Toast.LENGTH_LONG).show();
     }
+
 
     @Override
     protected void onResume() {
