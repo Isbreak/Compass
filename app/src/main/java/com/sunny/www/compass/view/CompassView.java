@@ -9,7 +9,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.sunny.www.compass.utils.DisplayUtil;
@@ -64,7 +63,6 @@ public class CompassView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        Log.e("CompassView",  DisplayUtil.px2dp(getContext(), 142) + "");
         super.onDraw(canvas);
         this.mCanvas = canvas;
 
@@ -72,6 +70,28 @@ public class CompassView extends View {
         mCanvas.translate(mCanvas.getWidth() / 2, mCanvas.getHeight() / 2);
 
         // 绘制最外部两个圆弧
+        drawOutSideArc();
+
+        // 画灰色三角形
+        drawGrayTrigon();
+
+        // 画中间角度值
+        drawMidAngel();
+
+        // 画圆圈
+        drawRedArc();
+
+        mCanvas.rotate(-directionAngle, 0f, 0f);
+
+        // 画红色三角形
+        drawRedTrigon();
+
+        // 画表盘内的刻度线，刻度值及方向
+        drawOthers();
+    }
+
+    // 绘制最外部两个圆弧
+    private void drawOutSideArc() {
         Paint outsideArcPaint = new Paint(mPaint);
         outsideArcPaint.setStyle(Paint.Style.STROKE);
         outsideArcPaint.setColor(Color.argb(255, 50, 50, 50));
@@ -79,8 +99,10 @@ public class CompassView extends View {
         RectF outsideOval = new RectF(-outOvalSize, -outOvalSize, outOvalSize, outOvalSize);
         mCanvas.drawArc(outsideOval, -83, 140, false, outsideArcPaint);
         mCanvas.drawArc(outsideOval, 123, 140, false, outsideArcPaint);
+    }
 
-        // 画灰色三角形
+    // 画灰色三角形
+    private void drawGrayTrigon() {
         Paint grayTrigonPaint = new Paint(mPaint);
         grayTrigonPaint.setColor(Color.argb(255, 50, 50, 50));
         Path grayTriangle = new Path();
@@ -89,48 +111,49 @@ public class CompassView extends View {
         grayTriangle.lineTo(0, -outOvalSize - (int) (Math.sqrt(trigonSize * trigonSize - trigonSize / 2 * trigonSize / 2) + 0.5) + outOvalStrokeWidth);
         grayTriangle.close();
         mCanvas.drawPath(grayTriangle, grayTrigonPaint);
+    }
 
-        // 画中间角度值
+    // 画中间角度值
+    private void drawMidAngel() {
         String angel = String.valueOf((int) directionAngle);
-
         Paint midAngelPaint = new Paint(mPaint);
         String sign = "°";
-
         midAngelPaint.setColor(Color.argb(255, 252, 252, 252));
         midAngelPaint.setTextSize(textMidAngelSize);
         midAngelPaint.getTextBounds(angel, 0, sign.length(), mTextRect);
         int signWidth = mTextRect.width();
-
         midAngelPaint.getTextBounds(angel, 0, angel.length(), mTextRect);
         int width = mTextRect.width();
         int height = mTextRect.height();
         mCanvas.drawText(angel + "°", -width / 2 - signWidth / 4, height / 2, midAngelPaint);
+    }
 
-        // 画圆圈
+    // 画圆圈
+    private void drawRedArc() {
         // 红色画笔
-        Paint redCirclePaint = new Paint(mPaint);
-        redCirclePaint.setColor(Color.argb(255, 253, 57, 0));
-        redCirclePaint.setStyle(Paint.Style.STROKE);
-        redCirclePaint.setStrokeWidth(inOvalStrokeWidth);
+        Paint redArcPaint = new Paint(mPaint);
+        redArcPaint.setColor(Color.argb(255, 253, 57, 0));
+        redArcPaint.setStyle(Paint.Style.STROKE);
+        redArcPaint.setStrokeWidth(inOvalStrokeWidth);
 
         // 灰色画笔
-        Paint grayCirclePaint = new Paint(mPaint);
-        grayCirclePaint.setColor(Color.argb(255, 155, 155, 155));
-        grayCirclePaint.setStyle(Paint.Style.STROKE);
-        grayCirclePaint.setStrokeWidth(inOvalStrokeWidth);
+        Paint grayArcPaint = new Paint(mPaint);
+        grayArcPaint.setColor(Color.argb(255, 155, 155, 155));
+        grayArcPaint.setStyle(Paint.Style.STROKE);
+        grayArcPaint.setStrokeWidth(inOvalStrokeWidth);
 
         RectF insideOval = new RectF(-inOvalSize, -inOvalSize, inOvalSize, inOvalSize);
         if (directionAngle < 180) {
-            mCanvas.drawArc(insideOval, -90 - directionAngle + 6, directionAngle - 1 - 6, false, redCirclePaint);
-            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, grayCirclePaint);
+            mCanvas.drawArc(insideOval, -90 - directionAngle + 6, directionAngle - 1 - 6, false, redArcPaint);
+            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, grayArcPaint);
         } else {
-            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, redCirclePaint);
-            mCanvas.drawArc(insideOval, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, grayCirclePaint);
+            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, redArcPaint);
+            mCanvas.drawArc(insideOval, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, grayArcPaint);
         }
+    }
 
-        mCanvas.rotate(-directionAngle, 0f, 0f);
-
-        // 画红色三角形
+    // 画红色三角形
+    private void drawRedTrigon() {
         Paint redTrigonPaint = new Paint(mPaint);
         redTrigonPaint.setColor(Color.argb(255, 253, 57, 0));
         Path redTriangle = new Path();
@@ -139,7 +162,10 @@ public class CompassView extends View {
         redTriangle.lineTo(0, -inOvalSize - (int) (Math.sqrt(trigonSize * trigonSize - trigonSize / 2 * trigonSize / 2) + 0.5) + inOvalStrokeWidth);
         redTriangle.close();
         mCanvas.drawPath(redTriangle, redTrigonPaint);
+    }
 
+    // 画表盘内的刻度线，刻度值及方向
+    private void drawOthers() {
         // 普通刻度
         Paint normalScalePaint = new Paint(mPaint);
         normalScalePaint.setStyle(Paint.Style.FILL);
@@ -151,6 +177,7 @@ public class CompassView extends View {
         specialScalePaint.setStrokeWidth(specialScaleWidth);
         specialScalePaint.setColor(Color.argb(255, 155, 155, 155));
 
+        // 表盘圈内的东西南北
         Paint dirTextPaint = new Paint(mPaint);
         dirTextPaint.setTextSize(textDirSize);
 
@@ -197,4 +224,5 @@ public class CompassView extends View {
             mCanvas.rotate(1, 0f, 0f);
         }
     }
+
 }
