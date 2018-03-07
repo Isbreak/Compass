@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CompassView mCompassView;
     private TextView mDirection;
+    private float oldDirAngel = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +56,16 @@ public class MainActivity extends AppCompatActivity {
     private SensorEventListener sensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
-            mCompassView.setDirectionAngle(event.values[0]);
-            direction = mDirectionText[((int) (event.values[0] + 22.5f) % 360) / 45];
+            float dirAngel = event.values[0];
+
+            mCompassView.setDirectionAngle(dirAngel);
+            direction = mDirectionText[((int) (dirAngel + 22.5f) % 360) / 45];
             mDirection.setText(direction);
+            if ((int) dirAngel % 30 == 0 && (int) dirAngel != (int) oldDirAngel) {
+                Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                vibrator.vibrate(20);
+            }
+            oldDirAngel = dirAngel;
         }
 
         @Override
