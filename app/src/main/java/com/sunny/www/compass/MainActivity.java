@@ -1,28 +1,22 @@
 package com.sunny.www.compass;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+
+import com.sunny.www.compass.view.CompassView;
 
 /**
  * 指南针主界面
  */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
     private SensorManager mSensorManager;
     private Sensor orientationField;
 

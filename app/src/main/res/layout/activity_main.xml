@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context="com.sunny.www.compass.Main2Activity">
+    tools:context="com.sunny.www.compass.MainActivity">
 
-    <com.sunny.www.compass.CompassView
+    <com.sunny.www.compass.view.CompassView
         android:id="@+id/compass"
         android:layout_width="match_parent"
         android:layout_height="400dp"
