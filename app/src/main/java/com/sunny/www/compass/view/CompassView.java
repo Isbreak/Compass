@@ -25,16 +25,16 @@ public class CompassView extends View {
     private float oldDirectionAngle = 0;
     private Rect mTextRect;
 
-    private int textDirSize = DisplayUtil.dp2px(getContext(), 11);
-    private int textMidAngelSize = DisplayUtil.dp2px(getContext(), 51);
-    private int textRudAngelSize = DisplayUtil.dp2px(getContext(), 7);
+    private int textDirSize = DisplayUtil.sp2px(getContext(), 11);
+    private int textMidAngelSize = DisplayUtil.sp2px(getContext(), 51);
+    private int textRudAngelSize = DisplayUtil.sp2px(getContext(), 7);
     private int inOvalSize = DisplayUtil.dp2px(getContext(), 113);
     private int outOvalSize = inOvalSize + DisplayUtil.dp2px(getContext(), 34);
     private int inOvalStrokeWidth = DisplayUtil.dp2px(getContext(), 2);
     private int outOvalStrokeWidth = DisplayUtil.dp2px(getContext(), 1);
     private int scaleLength = DisplayUtil.dp2px(getContext(), 11);
-    private int normalScaleWidth = DisplayUtil.dp2px(getContext(), 1);
-    private int specialScaleWidth = DisplayUtil.dp2px(getContext(), 1);
+    private int normalScaleWidth = DisplayUtil.dp2px(getContext(), 1.1f);
+    private int specialScaleWidth = DisplayUtil.dp2px(getContext(), 1.3f);
     private int trigonSize = DisplayUtil.dp2px(getContext(), 19);
     private int spaceSize = DisplayUtil.dp2px(getContext(), 6);
 
@@ -62,7 +62,6 @@ public class CompassView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         super.onDraw(canvas);
         this.mCanvas = canvas;
 
@@ -78,8 +77,8 @@ public class CompassView extends View {
         // 画中间角度值
         drawMidAngel();
 
-        // 画圆圈
-        drawRedArc();
+        // 画内部圆弧
+        drawInSideArc();
 
         mCanvas.rotate(-directionAngle, 0f, 0f);
 
@@ -128,8 +127,9 @@ public class CompassView extends View {
         mCanvas.drawText(angel + "°", -width / 2 - signWidth / 4, height / 2, midAngelPaint);
     }
 
-    // 画圆圈
-    private void drawRedArc() {
+
+    // 画内部圆弧
+    private void drawInSideArc() {
         // 红色画笔
         Paint redArcPaint = new Paint(mPaint);
         redArcPaint.setColor(Color.argb(255, 253, 57, 0));
@@ -143,13 +143,31 @@ public class CompassView extends View {
         grayArcPaint.setStrokeWidth(inOvalStrokeWidth);
 
         RectF insideOval = new RectF(-inOvalSize, -inOvalSize, inOvalSize, inOvalSize);
+
         if (directionAngle < 180) {
-            mCanvas.drawArc(insideOval, -90 - directionAngle + 6, directionAngle - 1 - 6, false, redArcPaint);
-            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, grayArcPaint);
+            if (directionAngle > 7) {
+                mCanvas.drawArc(insideOval, -90 - directionAngle + 6, directionAngle - 1 - 6, false, redArcPaint);
+            }
+
+            if (directionAngle <= 4) {
+                mCanvas.drawArc(insideOval, -90 + 5 - directionAngle, 349, false, grayArcPaint);
+            } else {
+                mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, grayArcPaint);
+            }
+
         } else {
-            mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, redArcPaint);
-            mCanvas.drawArc(insideOval, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, grayArcPaint);
+            if (directionAngle < 353) {
+                mCanvas.drawArc(insideOval, -90 + 1, 360 - directionAngle - 7, false, redArcPaint);
+            }
+
+            if (directionAngle >= 354) {
+                mCanvas.drawArc(insideOval, -90 + 5 + 360 - directionAngle, 349, false, grayArcPaint);
+            } else {
+                mCanvas.drawArc(insideOval, -90 + 360 - directionAngle + 6, directionAngle - 1 - 6, false, grayArcPaint);
+            }
+
         }
+
     }
 
     // 画红色三角形

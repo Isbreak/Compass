@@ -22,7 +22,7 @@ public class DisplayUtil {
     public static int px2dp(Context context, float pxValue) {
         float scale = context.getResources().getDisplayMetrics().density;
         if (scale == 2.625) { // TODO: 2018/3/7 适配一加机型
-            scale = (float) 2.9;
+            scale = (float) 3.0;
         }
         return (int) (pxValue / scale + 0.5f);
     }
@@ -36,7 +36,7 @@ public class DisplayUtil {
     public static int dp2px(Context context, float dpValue) {
         float scale = context.getResources().getDisplayMetrics().density;
         if (scale == 2.625) { // TODO: 2018/3/7 适配一加机型
-            scale = (float) 2.9;
+            scale = (float) 3.0;
         }
         return (int) (dpValue * scale + 0.5f);
     }
