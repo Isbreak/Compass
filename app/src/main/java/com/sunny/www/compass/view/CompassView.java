@@ -21,9 +21,10 @@ public class CompassView extends View {
 
     private Canvas mCanvas;
     private Paint mPaint;
+    private Rect mTextRect;
+
     private float directionAngle = 0;
     private float oldDirectionAngle = 0;
-    private Rect mTextRect;
 
     private int textDirSize = DisplayUtil.sp2px(getContext(), 11);
     private int textMidAngelSize = DisplayUtil.sp2px(getContext(), 51);
