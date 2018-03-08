@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunny.www.compass.view.CompassView;
+import com.tencent.bugly.crashreport.CrashReport;
 
 /**
  * 指南针主界面
@@ -37,8 +38,6 @@ public class MainActivity extends AppCompatActivity {
 
         mCompassView = (CompassView) findViewById(R.id.compass);
         mDirection = (TextView) findViewById(R.id.tv_dir);
-
-//        Toast.makeText(this, getResources().getDisplayMetrics().density + "", Toast.LENGTH_LONG).show();
     }
 
 
