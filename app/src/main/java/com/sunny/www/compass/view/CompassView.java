@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.sunny.www.compass.utils.DisplayUtil;
@@ -117,15 +118,16 @@ public class CompassView extends View {
     private void drawMidAngel() {
         String angel = String.valueOf((int) directionAngle);
         Paint midAngelPaint = new Paint(mPaint);
-        String sign = "°";
         midAngelPaint.setColor(Color.argb(255, 252, 252, 252));
         midAngelPaint.setTextSize(textMidAngelSize);
-        midAngelPaint.getTextBounds(angel, 0, sign.length(), mTextRect);
-        int signWidth = mTextRect.width();
         midAngelPaint.getTextBounds(angel, 0, angel.length(), mTextRect);
-        int width = mTextRect.width();
-        int height = mTextRect.height();
-        mCanvas.drawText(angel + "°", -width / 2 - signWidth / 4, height / 2, midAngelPaint);
+
+        Paint.FontMetricsInt fm = midAngelPaint.getFontMetricsInt();
+        float height = -fm.descent + (fm.descent - fm.ascent) / 2;
+
+        // 使用 measureText() 代替原先的 mTextRect.width() 方法,文字居中效果更好
+        float width = midAngelPaint.measureText(angel);
+        mCanvas.drawText(angel + "°", -width / 2, height, midAngelPaint);
     }
 
 
