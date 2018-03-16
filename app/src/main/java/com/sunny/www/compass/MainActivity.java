@@ -1,19 +1,26 @@
 package com.sunny.www.compass;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sunny.www.compass.view.CompassView;
-import com.tencent.bugly.crashreport.CrashReport;
+import com.trycatch.mysnackbar.Prompt;
+import com.trycatch.mysnackbar.TSnackbar;
 
 /**
  * 指南针主界面
@@ -21,7 +28,8 @@ import com.tencent.bugly.crashreport.CrashReport;
 public class MainActivity extends AppCompatActivity {
 
     private SensorManager mSensorManager;
-    private Sensor orientationField;
+    private long lastTime = 0;
+    private int times = 0;
 
     String direction = "未知"; // 方向描述
     private String mDirectionText[] = new String[]{"北", "东北", "东", "东南", "南", "西南", "西", "西北"};
@@ -29,6 +37,10 @@ public class MainActivity extends AppCompatActivity {
     private CompassView mCompassView;
     private TextView mDirection;
     private float oldDirAngel = 0;
+    private boolean isVibrate = true;
+    private boolean isFirstOpen = true;
+    private String IS_VIBRATE = "IS_VIBRATE";
+    private String IS_FIRST_OPEN = "IS_FIRST_OPEN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +48,49 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
+        final SharedPreferences sp = getSharedPreferences("Config", Context.MODE_PRIVATE);
+        isFirstOpen = sp.getBoolean(IS_FIRST_OPEN, true);
+        if (isFirstOpen) {
+            final ViewGroup viewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();//注意getRootView()最为重要，直接关系到TSnackBar的位置
+
+
+            TSnackbar snackBar = TSnackbar.make(viewGroup, "点击三次表盘，可关闭(打开)震动哦", TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
+            snackBar.setAction("确认", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isFirstOpen = false;
+                    sp.edit().putBoolean(IS_FIRST_OPEN, false).apply();
+                }
+            });
+            snackBar.setPromptThemBackground(Prompt.SUCCESS);
+            snackBar.show();
+        }
+
+        isVibrate = sp.getBoolean(IS_VIBRATE, true);
+
         mCompassView = (CompassView) findViewById(R.id.compass);
+        mCompassView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if ((System.currentTimeMillis() - lastTime) > 2000) {
+                    times = 1;
+                    lastTime = System.currentTimeMillis();
+                } else {
+                    times++;
+                    if (times >= 3) {
+                        isVibrate = !isVibrate;
+                        SharedPreferences sp = getSharedPreferences("Config", Context.MODE_PRIVATE);
+                        sp.edit().putBoolean(IS_VIBRATE, isVibrate).apply();
+                        if (isVibrate) {
+                            Toast.makeText(MainActivity.this, "打开震动", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "关闭震动", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }
+        });
+
         mDirection = (TextView) findViewById(R.id.tv_dir);
     }
 
@@ -50,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private void init() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        orientationField = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        Sensor orientationField = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         //注册监听
         mSensorManager.registerListener(sensorEventListener, orientationField, SensorManager.SENSOR_DELAY_FASTEST);
@@ -64,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             mCompassView.setDirectionAngle(dirAngel);
             direction = mDirectionText[((int) (dirAngel + 22.5f) % 360) / 45];
             mDirection.setText(direction);
-            if ((int) dirAngel % 30 == 0 && (int) dirAngel != (int) oldDirAngel) {
+            if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) oldDirAngel) {
                 Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                 vibrator.vibrate(20);
             }

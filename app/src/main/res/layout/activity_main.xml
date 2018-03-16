@@ -7,10 +7,6 @@
     android:orientation="vertical"
     tools:context="com.sunny.www.compass.MainActivity">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="12dp" />
-
     <TextView
         android:id="@+id/tv_dir"
         android:layout_width="wrap_content"
