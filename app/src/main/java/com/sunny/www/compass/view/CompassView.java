@@ -9,7 +9,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.sunny.www.compass.utils.DisplayUtil;
@@ -175,6 +174,8 @@ public class CompassView extends View {
 
     // 画红色三角形
     private void drawRedTrigon() {
+        //fd3900
+        // 背景 5A5D63
         Paint redTrigonPaint = new Paint(mPaint);
         redTrigonPaint.setColor(Color.argb(255, 253, 57, 0));
         Path redTriangle = new Path();
