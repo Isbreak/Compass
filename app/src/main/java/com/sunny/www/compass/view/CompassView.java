@@ -119,7 +119,6 @@ public class CompassView extends View {
         Paint midAngelPaint = new Paint(mPaint);
         midAngelPaint.setColor(Color.argb(255, 252, 252, 252));
         midAngelPaint.setTextSize(textMidAngelSize);
-        midAngelPaint.getTextBounds(angel, 0, angel.length(), mTextRect);
 
         Paint.FontMetricsInt fm = midAngelPaint.getFontMetricsInt();
         float height = -fm.descent + (fm.descent - fm.ascent) / 2;
