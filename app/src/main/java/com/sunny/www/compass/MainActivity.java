@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        final SharedPreferences sp = getSharedPreferences("Config", Context.MODE_PRIVATE);
+        final SharedPreferences sp = getSharedPreferences(SP_CONFIG, Context.MODE_PRIVATE);
         isFirstOpen = sp.getBoolean(IS_FIRST_OPEN, true);
         isVibrate = sp.getBoolean(IS_VIBRATE, true);
     }
@@ -174,3 +174,5 @@ public class MainActivity extends AppCompatActivity {
         mSensorManager.unregisterListener(sensorEventListener);
     }
 }
+
+//非常抱歉，好久没有更新了，之前有段时间比较忙，就把APP的签名密钥弄丢了，导致无法升级版本。从2.0.0版本之前升级到此版本的用户，因为签名不一致，会导致安装失败，请先把旧APP卸载，十分抱歉。本次更新添加了手机方向传感器精度检测，出现精度不准提示时，请按照提示去校准哦~
