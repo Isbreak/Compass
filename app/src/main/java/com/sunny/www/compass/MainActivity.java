@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,20 +25,41 @@ import com.trycatch.mysnackbar.TSnackbar;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private SensorManager mSensorManager;
-    private long lastTime = 0;
-    private int times = 0;
+    private final String SP_CONFIG = "sp_config";
 
-    String direction = "未知"; // 方向描述
-    private String mDirectionText[] = new String[]{"北", "东北", "东", "东南", "南", "西南", "西", "西北"};
+    private final String IS_VIBRATE = "IS_VIBRATE";
+
+    private final String IS_FIRST_OPEN = "IS_FIRST_OPEN";
+
+    private final String[] mDirectionText = new String[]{"北", "东北", "东", "东南", "南", "西南", "西", "西北"};
+
+    private ViewGroup mViewGroup;
+
+    private TextView mDirection;
 
     private CompassView mCompassView;
-    private TextView mDirection;
-    private float oldDirAngel = 0;
-    private boolean isVibrate = true;
+
+    private TSnackbar accuracyWarnSnackBar;
+
     private boolean isFirstOpen = true;
-    private String IS_VIBRATE = "IS_VIBRATE";
-    private String IS_FIRST_OPEN = "IS_FIRST_OPEN";
+
+    private boolean isVibrate = true;
+
+    private long lastTime = 0;
+
+    private int times = 0;
+
+    private SensorManager mSensorManager;
+
+    String direction = "未知";
+
+    private float lastDirAngel = 0;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        init();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,27 +67,25 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
+        initData();
+        initView();
+        initListener();
+    }
+
+    private void initData() {
         final SharedPreferences sp = getSharedPreferences("Config", Context.MODE_PRIVATE);
         isFirstOpen = sp.getBoolean(IS_FIRST_OPEN, true);
-        if (isFirstOpen) {
-            final ViewGroup viewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();//注意getRootView()最为重要，直接关系到TSnackBar的位置
-
-
-            TSnackbar snackBar = TSnackbar.make(viewGroup, "点击三次表盘，可关闭(打开)震动哦", TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
-            snackBar.setAction("确认", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    isFirstOpen = false;
-                    sp.edit().putBoolean(IS_FIRST_OPEN, false).apply();
-                }
-            });
-            snackBar.setPromptThemBackground(Prompt.SUCCESS);
-            snackBar.show();
-        }
-
         isVibrate = sp.getBoolean(IS_VIBRATE, true);
+    }
 
+    private void initView() {
+        mViewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();
+        mDirection = (TextView) findViewById(R.id.tv_dir);
         mCompassView = (CompassView) findViewById(R.id.compass);
+        showSnackBar();
+    }
+
+    private void initListener() {
         mCompassView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                     times++;
                     if (times >= 3) {
                         isVibrate = !isVibrate;
-                        SharedPreferences sp = getSharedPreferences("Config", Context.MODE_PRIVATE);
+                        SharedPreferences sp = getSharedPreferences(SP_CONFIG, Context.MODE_PRIVATE);
                         sp.edit().putBoolean(IS_VIBRATE, isVibrate).apply();
                         if (isVibrate) {
                             Toast.makeText(MainActivity.this, "打开震动", Toast.LENGTH_SHORT).show();
@@ -88,24 +108,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        mDirection = (TextView) findViewById(R.id.tv_dir);
     }
 
+    private void showSnackBar() {
+        if (isFirstOpen) {
+            TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击三次表盘，可关闭(打开)震动哦", TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
+            snackBar.setAction("确认", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    isFirstOpen = false;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        init();
+                    SharedPreferences sp = getSharedPreferences(SP_CONFIG, Context.MODE_PRIVATE);
+                    sp.edit().putBoolean(IS_FIRST_OPEN, false).apply();
+                }
+            });
+            snackBar.setPromptThemBackground(Prompt.SUCCESS);
+            snackBar.show();
+        }
     }
 
     @SuppressWarnings("deprecation")
     private void init() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor orientationField = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         //注册监听
-        mSensorManager.registerListener(sensorEventListener, orientationField, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private SensorEventListener sensorEventListener = new SensorEventListener() {
@@ -116,23 +144,33 @@ public class MainActivity extends AppCompatActivity {
             mCompassView.setDirectionAngle(dirAngel);
             direction = mDirectionText[((int) (dirAngel + 22.5f) % 360) / 45];
             mDirection.setText(direction);
-            if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) oldDirAngel) {
+            if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) lastDirAngel) {
                 Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                 vibrator.vibrate(20);
             }
-            oldDirAngel = dirAngel;
+            lastDirAngel = dirAngel;
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+            if (accuracy != SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+                    && accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
+                if (accuracyWarnSnackBar == null) {
+                    accuracyWarnSnackBar = TSnackbar.make(mViewGroup, "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
+                            TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
+                    accuracyWarnSnackBar.setPromptThemBackground(Prompt.WARNING);
+                }
+                accuracyWarnSnackBar.show();
+            } else if (accuracyWarnSnackBar != null) {
+                accuracyWarnSnackBar.dismiss();
+            }
         }
     };
 
     @Override
     protected void onPause() {
         super.onPause();
-        //注销所有传感器
+        //注销传感器
         mSensorManager.unregisterListener(sensorEventListener);
     }
 }
