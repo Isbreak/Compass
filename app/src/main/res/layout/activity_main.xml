@@ -17,7 +17,7 @@
         android:textSize="30sp"
         tools:text="@string/app_name" />
 
-    <com.sunny.www.compass.view.CompassView
+    <com.sunny.www.compass.view.IconView
         android:id="@+id/compass"
         android:layout_width="match_parent"
         android:layout_height="380dp"

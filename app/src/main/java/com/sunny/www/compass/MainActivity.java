@@ -2,23 +2,29 @@ package com.sunny.www.compass;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sunny.www.compass.view.CompassView;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.sunny.www.compass.view.IconView;
 import com.trycatch.mysnackbar.Prompt;
 import com.trycatch.mysnackbar.TSnackbar;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * 指南针主界面
@@ -37,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mDirection;
 
-    private CompassView mCompassView;
+    private IconView mCompassView;
 
     private TSnackbar accuracyWarnSnackBar;
 
@@ -80,9 +86,29 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         mViewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();
-        mDirection = (TextView) findViewById(R.id.tv_dir);
-        mCompassView = (CompassView) findViewById(R.id.compass);
+        mDirection = findViewById(R.id.tv_dir);
+        mCompassView = findViewById(R.id.compass);
+
         showSnackBar();
+    }
+
+    private Bitmap createBitmap(View view) {
+        view.buildDrawingCache();
+        return view.getDrawingCache();
+    }
+
+    private void saveBitmap(Bitmap bitmap) {
+        FileOutputStream fos;
+        try {
+            File root = Environment.getExternalStorageDirectory();
+            File file = new File(root, "test.png");
+            fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            Log.e("gaozy", e.toString());
+        }
     }
 
     private void initListener() {
@@ -102,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "打开震动", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(MainActivity.this, "关闭震动", Toast.LENGTH_SHORT).show();
+                            Bitmap bitmap = createBitmap(mCompassView);
+                            saveBitmap(bitmap);
                         }
                         times = 0;
                     }
