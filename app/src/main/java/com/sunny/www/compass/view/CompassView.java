@@ -8,6 +8,8 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import androidx.annotation.Nullable;
+
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -29,7 +31,7 @@ public class CompassView extends View {
      * dp 转 px，尺寸适配
      */
     private int textDirSize = DisplayUtil.sp2px(getContext(), 11);
-    private int textMidAngleSize = DisplayUtil.sp2px(getContext(), 51);
+    private int textMidAngleSize = DisplayUtil.sp2px(getContext(), 60);
     private int textRudAngleSize = DisplayUtil.sp2px(getContext(), 7);
     private int inOvalSize = DisplayUtil.dp2px(getContext(), 113);
     private int outOvalSize = inOvalSize + DisplayUtil.dp2px(getContext(), 34);
@@ -120,6 +122,8 @@ public class CompassView extends View {
     private void drawMidAngle() {
         String angle = String.valueOf((int) directionAngle);
         Paint midAnglePaint = new Paint();
+        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/fontnumber_light.ttf");
+        midAnglePaint.setTypeface(typeface);
         midAnglePaint.setAntiAlias(true);
         midAnglePaint.setColor(Color.argb(255, 252, 252, 252));
         midAnglePaint.setTextSize(textMidAngleSize);
