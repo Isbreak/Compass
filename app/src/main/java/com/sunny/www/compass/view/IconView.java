@@ -26,13 +26,13 @@ public class IconView extends View {
     /**
      * dp 转 px，尺寸适配
      */
-    private int textMidAngleSize = DisplayUtil.sp2px(getContext(), 150);
+    private int textMidAngleSize = DisplayUtil.sp2px(getContext(), 140);
 
     private int inOvalSize = DisplayUtil.dp2px(getContext(), 100);
-    private int inOvalStrokeWidth = DisplayUtil.dp2px(getContext(), 4);
+    private int inOvalStrokeWidth = DisplayUtil.dp2px(getContext(), 8);
 
     private int triangleSize = DisplayUtil.dp2px(getContext(), 40);
-    private int blackTriangleSize = DisplayUtil.dp2px(getContext(), 45);
+    private int blackTriangleSize = DisplayUtil.dp2px(getContext(), 47);
 
     public IconView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -54,7 +54,7 @@ public class IconView extends View {
         super.onDraw(canvas);
         this.mCanvas = canvas;
 
-        mCanvas.drawColor(Color.BLACK);
+        mCanvas.drawColor(Color.argb(255, 25, 25, 25));
         mCanvas.translate(mCanvas.getWidth() / 2, mCanvas.getHeight() / 2);
 
         drawMidAngle();
@@ -70,7 +70,7 @@ public class IconView extends View {
 //        Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/fontnumber_light.ttf");
 //        midAnglePaint.setTypeface(typeface);
         midAnglePaint.setAntiAlias(true);
-        midAnglePaint.setColor(Color.argb(255, 245, 245, 245));
+        midAnglePaint.setColor(Color.argb(255, 230, 230, 230));
         midAnglePaint.setTextSize(textMidAngleSize);
         midAnglePaint.getTextBounds(angle, 0, angle.length(), mTextRect);
         Paint.FontMetricsInt fm = midAnglePaint.getFontMetricsInt();
@@ -104,7 +104,7 @@ public class IconView extends View {
 
         Paint blackTrianglePaint = new Paint();
         blackTrianglePaint.setAntiAlias(true);
-        blackTrianglePaint.setColor(Color.argb(255, 0, 0, 0));
+        blackTrianglePaint.setColor(Color.argb(255, 25, 25, 25));
         Path blackTriangle = new Path();
         blackTriangle.moveTo(-blackTriangleSize / 2, -inOvalSize + inOvalStrokeWidth);
         blackTriangle.lineTo(blackTriangleSize / 2, -inOvalSize + inOvalStrokeWidth);
