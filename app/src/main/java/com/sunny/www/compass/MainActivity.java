@@ -14,7 +14,6 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -133,7 +132,8 @@ public class MainActivity extends AppCompatActivity {
             if (accuracy != SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
                     && accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
                 if (accuracyWarnSnackBar == null) {
-                    accuracyWarnSnackBar = TSnackbar.make(mViewGroup, "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
+                    accuracyWarnSnackBar = TSnackbar.make(mViewGroup,
+                            "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
                             TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
                     accuracyWarnSnackBar.setPromptThemBackground(Prompt.WARNING);
                 }
@@ -168,7 +168,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isVibrate = !isVibrate;
                     sharedPreferences.edit().putBoolean(IS_VIBRATE, isVibrate).apply();
-                    Toast.makeText(MainActivity.this, isVibrate ? "打开震动" : "关闭震动", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, isVibrate ? "打开震动" : "关闭震动",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -200,7 +201,8 @@ public class MainActivity extends AppCompatActivity {
 
             updateLocation(location);
 
-            locationManager.requestLocationUpdates(locationProvider, 2000, 2, locationListener);
+            locationManager.requestLocationUpdates(locationProvider, 2000, 2,
+                    locationListener);
             locationManager.addGpsStatusListener(gpsStatusListener);
         }
     }
@@ -232,13 +234,13 @@ public class MainActivity extends AppCompatActivity {
                 case GpsStatus.GPS_EVENT_FIRST_FIX:  //第一次定位
                     break;
                 case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                    //卫星状态改变
-                    //获取当前状态
+                    // 卫星状态改变
+                    // 获取当前状态
                     @SuppressLint("MissingPermission")
                     GpsStatus gpsStatus = locationManager.getGpsStatus(null);
-                    //获取卫星颗数的默认最大值
+                    // 获取卫星颗数的默认最大值
                     int maxSatellites = gpsStatus.getMaxSatellites();
-                    //创建一个迭代器保存所有卫星
+                    // 创建一个迭代器保存所有卫星
                     Iterator<GpsSatellite> iterator = gpsStatus.getSatellites().iterator();
                     int count = 0;
                     while (iterator.hasNext() && count <= maxSatellites) {
@@ -249,9 +251,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
+                            Locale.CHINA);
                     String curTime = dateFormat.format(new Date());
-                    Log.e("gaozy", curTime + "-----卫星数量nun----" + count);
+                    Log.e("gaozy", curTime + "-----卫星数量----" + count);
                     break;
                 case GpsStatus.GPS_EVENT_STARTED:   //定位启动
                     break;
@@ -288,7 +291,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSnackBar() {
-        TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击两次次表盘，可关闭(打开)震动哦", TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
+        TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击两次次表盘，可关闭(打开)震动哦",
+                TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
         snackBar.setAction("确认", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -315,14 +319,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQUEST_CODE) {
             for (int i = 0; i < permissions.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     initLocation();
                 } else {
-                    Toast.makeText(MainActivity.this, "权限被拒绝", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "权限被拒绝",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         }
