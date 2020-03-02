@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">指南针</string>
+    <string name="latitude">纬度</string>
+    <string name="longitude">经度</string>
+    <string name="speed">速度</string>
+    <string name="format_float_2">%1$.2f</string>
+    <string name="format_float_4">%1$.4f</string>
 </resources>
