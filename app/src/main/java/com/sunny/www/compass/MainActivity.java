@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         initData();
         initView();
         initListener();
-        initLocation();
+        checkLocationPermission();
     }
 
     @SuppressWarnings("deprecation")
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initLocation() {
+    private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -184,7 +184,13 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION
                     }, PERMISSION_REQUEST_CODE);
         } else {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            initLocation();
+        }
+    }
+
+    private void initLocation() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
             List<String> providers = locationManager.getProviders(true);
             String locationProvider;
             Location location;
@@ -265,26 +271,22 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void updateLocation(Location location) {
-        double lon;
         double lat;
+        double lon;
         double speed;
 
         if (location != null) {
-            lon = location.getLongitude();
             lat = location.getLatitude();
+            lon = location.getLongitude();
             if (location.hasSpeed()) {
-                speed = location.getSpeed() * 3.6;
-
-                TextView tvLon = findViewById(R.id.tv_lon);
-                tvLon.setText(String.format(getString(R.string.format_float_4), lon));
                 TextView tvLat = findViewById(R.id.tv_lat);
                 tvLat.setText(String.format(getString(R.string.format_float_4), lat));
+                TextView tvLon = findViewById(R.id.tv_lon);
+                tvLon.setText(String.format(getString(R.string.format_float_4), lon));
+
+                speed = location.getSpeed() * 3.6;
                 TextView tvSpeed = findViewById(R.id.tv_speed);
                 tvSpeed.setText(String.format(getString(R.string.format_float_2), speed));
-            } else {
-                if (lastLocation != null) {
-//                    speed = getMySpeed(lastLocation, location);
-                }
             }
             lastLocation = location;
         }

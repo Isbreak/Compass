@@ -60,7 +60,7 @@
                 android:textSize="13sp" />
 
             <TextView
-                android:id="@+id/tv_lon"
+                android:id="@+id/tv_lat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -83,7 +83,7 @@
                 android:textSize="13sp" />
 
             <TextView
-                android:id="@+id/tv_lat"
+                android:id="@+id/tv_lon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -96,7 +96,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
