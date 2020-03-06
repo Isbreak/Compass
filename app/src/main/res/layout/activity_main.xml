@@ -28,8 +28,8 @@
         android:layout_height="0.2dp"
         android:layout_above="@id/ll_info"
         android:layout_gravity="center_horizontal"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="30dp"
         android:background="@drawable/shape_gradient_grey_linear" />
 
@@ -56,16 +56,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/latitude"
-                android:textColor="#D9D9D9"
-                android:textSize="13sp" />
+                android:textColor="#CCCCCC"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_lat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="#F7F7F7"
-                android:textSize="13sp" />
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -79,16 +79,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/longitude"
-                android:textColor="#D9D9D9"
-                android:textSize="13sp" />
+                android:textColor="#CCCCCC"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_lon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="#F7F7F7"
-                android:textSize="13sp" />
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -103,16 +103,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/speed"
-                android:textColor="#D9D9D9"
-                android:textSize="13sp" />
+                android:textColor="#CCCCCC"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_speed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:textColor="#F7F7F7"
-                android:textSize="13sp" />
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
 

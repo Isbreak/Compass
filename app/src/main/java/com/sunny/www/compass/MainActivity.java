@@ -60,11 +60,23 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewGroup mViewGroup;
 
-    private TextView mDirection;
+    private TextView mDirectionTv;
     /**
      * 指南针罗盘自定义 View
      */
     private CompassView mCompassView;
+    /**
+     * 纬度
+     */
+    private TextView mLatTv;
+    /**
+     * 经度
+     */
+    private TextView mLonTv;
+    /**
+     * 速度
+     */
+    private TextView mSpeedTv;
     /**
      * 顶部提示悬浮框
      */
@@ -83,8 +95,6 @@ public class MainActivity extends AppCompatActivity {
     private float lastDirAngel = 0;
 
     private LocationManager locationManager;
-
-    private Location lastLocation;
 
     @Override
     protected void onResume() {
@@ -112,38 +122,6 @@ public class MainActivity extends AppCompatActivity {
         mSensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
-    private SensorEventListener sensorEventListener = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            float dirAngel = event.values[0];
-
-            mCompassView.setDirectionAngle(dirAngel);
-            direction = mDirectionText[((int) (dirAngel + 22.5f) % 360) / 45];
-            mDirection.setText(direction);
-            if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) lastDirAngel) {
-                Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                vibrator.vibrate(20);
-            }
-            lastDirAngel = dirAngel;
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-            if (accuracy != SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
-                    && accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
-                if (accuracyWarnSnackBar == null) {
-                    accuracyWarnSnackBar = TSnackbar.make(mViewGroup,
-                            "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
-                            TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
-                    accuracyWarnSnackBar.setPromptThemBackground(Prompt.WARNING);
-                }
-                accuracyWarnSnackBar.show();
-            } else if (accuracyWarnSnackBar != null) {
-                accuracyWarnSnackBar.dismiss();
-            }
-        }
-    };
-
     private void initData() {
         sharedPreferences = getSharedPreferences(SP_CONFIG, Context.MODE_PRIVATE);
         isFirstOpen = sharedPreferences.getBoolean(IS_FIRST_OPEN, true);
@@ -152,8 +130,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         mViewGroup = (ViewGroup) findViewById(android.R.id.content).getRootView();
-        mDirection = findViewById(R.id.tv_dir);
+        mDirectionTv = findViewById(R.id.tv_dir);
         mCompassView = findViewById(R.id.compass);
+        mLatTv = findViewById(R.id.tv_lat);
+        mLonTv = findViewById(R.id.tv_lon);
+        mSpeedTv = findViewById(R.id.tv_speed);
         if (isFirstOpen) {
             showSnackBar();
         }
@@ -188,6 +169,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private SensorEventListener sensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            float dirAngel = event.values[0];
+
+            mCompassView.setDirectionAngle(dirAngel);
+            direction = mDirectionText[((int) (dirAngel + 22.5f) % 360) / 45];
+            mDirectionTv.setText(direction);
+            if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) lastDirAngel) {
+                Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                vibrator.vibrate(20);
+            }
+            lastDirAngel = dirAngel;
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            if (accuracy != SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+                    && accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
+                if (accuracyWarnSnackBar == null) {
+                    accuracyWarnSnackBar = TSnackbar.make(mViewGroup,
+                            "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
+                            TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
+                    accuracyWarnSnackBar.setPromptThemBackground(Prompt.WARNING);
+                }
+                accuracyWarnSnackBar.show();
+            } else if (accuracyWarnSnackBar != null) {
+                accuracyWarnSnackBar.dismiss();
+            }
+        }
+    };
+
+    @SuppressLint("MissingPermission")
     private void initLocation() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null) {
@@ -209,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
             locationManager.requestLocationUpdates(locationProvider, 2000, 2,
                     locationListener);
+            // todo deprecated function
             locationManager.addGpsStatusListener(gpsStatusListener);
         }
     }
@@ -279,16 +294,11 @@ public class MainActivity extends AppCompatActivity {
             lat = location.getLatitude();
             lon = location.getLongitude();
             if (location.hasSpeed()) {
-                TextView tvLat = findViewById(R.id.tv_lat);
-                tvLat.setText(String.format(getString(R.string.format_float_4), lat));
-                TextView tvLon = findViewById(R.id.tv_lon);
-                tvLon.setText(String.format(getString(R.string.format_float_4), lon));
-
+                mLatTv.setText(String.format(getString(R.string.format_float_5), lat));
+                mLonTv.setText(String.format(getString(R.string.format_float_5), lon));
                 speed = location.getSpeed() * 3.6;
-                TextView tvSpeed = findViewById(R.id.tv_speed);
-                tvSpeed.setText(String.format(getString(R.string.format_float_2), speed));
+                mSpeedTv.setText(String.format(getString(R.string.format_float_2), speed));
             }
-            lastLocation = location;
         }
     }
 
@@ -317,6 +327,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
+            locationManager.removeGpsStatusListener(gpsStatusListener);
         }
     }
 

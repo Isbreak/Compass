@@ -4,5 +4,5 @@
     <string name="longitude">经度</string>
     <string name="speed">速度</string>
     <string name="format_float_2">%1$.2f</string>
-    <string name="format_float_4">%1$.4f</string>
+    <string name="format_float_5">%1$.5f</string>
 </resources>
