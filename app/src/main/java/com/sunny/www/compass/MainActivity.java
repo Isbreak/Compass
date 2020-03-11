@@ -299,6 +299,9 @@ public class MainActivity extends AppCompatActivity {
                 speed = location.getSpeed() * 3.6;
                 mSpeedTv.setText(String.format(getString(R.string.format_float_2), speed));
             }
+        } else {
+            mLatTv.setText("---");
+            mLonTv.setText("---");
         }
     }
 
