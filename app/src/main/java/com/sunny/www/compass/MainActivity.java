@@ -16,7 +16,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -97,12 +96,6 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager locationManager;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        initSensor();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -110,6 +103,12 @@ public class MainActivity extends AppCompatActivity {
         initData();
         initView();
         initListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initSensor();
         checkLocationPermission();
     }
 
@@ -275,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
                             Locale.CHINA);
                     String curTime = dateFormat.format(new Date());
-                    Log.e("gaozy", curTime + "-----卫星数量----" + count);
                     break;
                 case GpsStatus.GPS_EVENT_STARTED:   //定位启动
                     break;
