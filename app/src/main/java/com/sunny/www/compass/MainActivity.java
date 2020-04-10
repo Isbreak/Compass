@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSnackBar() {
-        TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击两次次表盘，可关闭(打开)震动哦",
+        TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击两次表盘，可关闭(打开)震动哦",
                 TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
         snackBar.setAction("确认", new View.OnClickListener() {
             @Override
