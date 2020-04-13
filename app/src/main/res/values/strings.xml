@@ -1,8 +1,15 @@
 <resources>
     <string name="app_name">指南针</string>
     <string name="latitude">纬度</string>
+    <string name="altitude">海拔</string>
     <string name="longitude">经度</string>
     <string name="speed">速度</string>
     <string name="format_float_2">%1$.2f</string>
     <string name="format_float_5">%1$.5f</string>
+    <string name="open_vibrate">打开震动</string>
+    <string name="close_vibrate">关闭震动</string>
+    <string name="calibration_tips">附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针</string>
+    <string name="open_location_service">请打开位置服务</string>
+    <string name="vibrate_setting_tips">点击两次表盘，可关闭(打开)震动哦</string>
+    <string name="confirm">确认</string>
 </resources>

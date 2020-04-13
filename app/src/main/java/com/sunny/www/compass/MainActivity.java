@@ -9,8 +9,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.GpsSatellite;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -21,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,11 +27,7 @@ import com.sunny.www.compass.view.CompassView;
 import com.trycatch.mysnackbar.Prompt;
 import com.trycatch.mysnackbar.TSnackbar;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * 指南针主界面
@@ -73,9 +66,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private TextView mLonTv;
     /**
-     * 速度
+     * 海拔
      */
-    private TextView mSpeedTv;
+    private TextView mAltTv;
     /**
      * 顶部提示悬浮框
      */
@@ -89,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SensorManager mSensorManager;
 
-    String direction = "未知";
+    String direction = "UNKNOWN";
 
     private float lastDirAngel = 0;
 
@@ -115,10 +108,11 @@ public class MainActivity extends AppCompatActivity {
     @SuppressWarnings("deprecation")
     private void initSensor() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-
-        //注册监听
-        mSensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        if (mSensorManager != null) {
+            Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            //注册监听
+            mSensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        }
     }
 
     private void initData() {
@@ -133,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         mCompassView = findViewById(R.id.compass);
         mLatTv = findViewById(R.id.tv_lat);
         mLonTv = findViewById(R.id.tv_lon);
-        mSpeedTv = findViewById(R.id.tv_speed);
+        mAltTv = findViewById(R.id.tv_altitude);
         if (isFirstOpen) {
             showSnackBar();
         }
@@ -148,8 +142,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     isVibrate = !isVibrate;
                     sharedPreferences.edit().putBoolean(IS_VIBRATE, isVibrate).apply();
-                    Toast.makeText(MainActivity.this, isVibrate ? "打开震动" : "关闭震动",
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, isVibrate ? getString(R.string.open_vibrate)
+                            : getString(R.string.close_vibrate), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -178,7 +172,9 @@ public class MainActivity extends AppCompatActivity {
             mDirectionTv.setText(direction);
             if (isVibrate && (int) dirAngel % 30 == 0 && (int) dirAngel != (int) lastDirAngel) {
                 Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                vibrator.vibrate(20);
+                if (vibrator != null) {
+                    vibrator.vibrate(20);
+                }
             }
             lastDirAngel = dirAngel;
         }
@@ -189,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     && accuracy != SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
                 if (accuracyWarnSnackBar == null) {
                     accuracyWarnSnackBar = TSnackbar.make(mViewGroup,
-                            "附近可能有电磁干扰，请参照蔡徐坤打篮球的姿势晃动手机校准指南针",
+                            getString(R.string.calibration_tips),
                             TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
                     accuracyWarnSnackBar.setPromptThemBackground(Prompt.WARNING);
                 }
@@ -205,16 +201,23 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null) {
             List<String> providers = locationManager.getProviders(true);
-            String locationProvider;
-            Location location;
+            String locationProvider = null;
+            Location location = null;
             if (providers.contains(LocationManager.GPS_PROVIDER)) {
                 locationProvider = LocationManager.GPS_PROVIDER;
                 location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            } else if (providers.contains(LocationManager.NETWORK_PROVIDER)) {
+            }
+
+            if (locationProvider == null && providers.contains(LocationManager.NETWORK_PROVIDER)) {
                 locationProvider = LocationManager.NETWORK_PROVIDER;
+            }
+
+            if (location == null) {
                 location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            } else {
-                Toast.makeText(this, "请打开位置服务", Toast.LENGTH_SHORT).show();
+            }
+
+            if (locationProvider == null) {
+                Toast.makeText(this, getString(R.string.open_location_service), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -222,8 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
             locationManager.requestLocationUpdates(locationProvider, 2000, 2,
                     locationListener);
-            // todo deprecated function
-            locationManager.addGpsStatusListener(gpsStatusListener);
         }
     }
 
@@ -246,67 +247,25 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private GpsStatus.Listener gpsStatusListener = new GpsStatus.Listener() {
-
-        @Override
-        public void onGpsStatusChanged(int event) {
-            switch (event) {
-                case GpsStatus.GPS_EVENT_FIRST_FIX:  //第一次定位
-                    break;
-                case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
-                    // 卫星状态改变
-                    // 获取当前状态
-                    @SuppressLint("MissingPermission")
-                    GpsStatus gpsStatus = locationManager.getGpsStatus(null);
-                    // 获取卫星颗数的默认最大值
-                    int maxSatellites = gpsStatus.getMaxSatellites();
-                    // 创建一个迭代器保存所有卫星
-                    Iterator<GpsSatellite> iterator = gpsStatus.getSatellites().iterator();
-                    int count = 0;
-                    while (iterator.hasNext() && count <= maxSatellites) {
-                        GpsSatellite s = iterator.next();
-                        // 只有信噪比不为0时才算合格的卫星
-                        if (s.getSnr() != 0) {
-                            count++;
-                        }
-                    }
-
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",
-                            Locale.CHINA);
-                    String curTime = dateFormat.format(new Date());
-                    break;
-                case GpsStatus.GPS_EVENT_STARTED:   //定位启动
-                    break;
-                case GpsStatus.GPS_EVENT_STOPPED:   //定位结束
-                    break;
-            }
-        }
-    };
-
     private void updateLocation(Location location) {
-        double lat;
-        double lon;
-        double speed;
-
         if (location != null) {
-            lat = location.getLatitude();
-            lon = location.getLongitude();
-            if (location.hasSpeed()) {
-                mLatTv.setText(String.format(getString(R.string.format_float_5), lat));
-                mLonTv.setText(String.format(getString(R.string.format_float_5), lon));
-                speed = location.getSpeed() * 3.6;
-                mSpeedTv.setText(String.format(getString(R.string.format_float_2), speed));
-            }
+            double lat = location.getLatitude();
+            double lon = location.getLongitude();
+            double alt = location.getAltitude();
+            mLatTv.setText(String.format(getString(R.string.format_float_5), lat));
+            mLonTv.setText(String.format(getString(R.string.format_float_5), lon));
+            mAltTv.setText(String.format(getString(R.string.format_float_5), alt));
         } else {
             mLatTv.setText("---");
             mLonTv.setText("---");
+            mAltTv.setText("---");
         }
     }
 
     private void showSnackBar() {
-        TSnackbar snackBar = TSnackbar.make(mViewGroup, "点击两次表盘，可关闭(打开)震动哦",
+        TSnackbar snackBar = TSnackbar.make(mViewGroup, getString(R.string.vibrate_setting_tips),
                 TSnackbar.LENGTH_INDEFINITE, TSnackbar.APPEAR_FROM_TOP_TO_DOWN);
-        snackBar.setAction("确认", new View.OnClickListener() {
+        snackBar.setAction(getString(R.string.confirm), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sharedPreferences.edit().putBoolean(IS_FIRST_OPEN, false).apply();
@@ -319,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        //注销传感器
+        // 注销传感器
         mSensorManager.unregisterListener(sensorEventListener);
     }
 
@@ -328,23 +287,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
-            locationManager.removeGpsStatusListener(gpsStatusListener);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            for (int i = 0; i < permissions.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    initLocation();
-                } else {
-                    Toast.makeText(MainActivity.this, "权限被拒绝",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
         }
     }
 }

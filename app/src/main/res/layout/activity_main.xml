@@ -96,18 +96,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/speed"
+                android:text="@string/altitude"
                 android:textColor="#CCCCCC"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tv_speed"
+                android:id="@+id/tv_altitude"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
